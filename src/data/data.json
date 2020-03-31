@@ -1,0 +1,154 @@
+{
+  "pipeSystems": [
+    {
+      "id": "cf2",
+      "name": "COOL-FIT 2.0",
+      "isInsulated": true,
+      "insulationMaterial": "PUR",
+      "supportedUnits": ["ISO", "ASTM"],
+      "dimensions": [
+        {
+          "value": 1,
+          "ISO": "32/75",
+          "ASTM": "1\""
+        },
+        {
+          "value": 2,
+          "ISO": "40/90",
+          "ASTM": "1 1/4\""
+        }
+      ]
+    },
+    {
+      "id": "ef11",
+      "name": "ecoFIT SDR11",
+      "isInsulated": false,
+      "insulationMaterial": null,
+      "supportedUnits": ["ISO"],
+      "dimensions": [
+        {
+          "value": 3,
+          "ISO": "20"
+        },
+        {
+          "value": 4,
+          "ISO": "25"
+        }
+      ]
+    }
+  ],
+  "areas": {
+    "pressureLossArea": {
+      "modules": [
+        {
+          "id": "pressureLossAlongPipeModule",
+          "name": "Pressure loss - Along pipe",
+          "tables": [
+            {
+              "id": "pressureLossInputTable",
+              "name": "{{ pipeSystem.name }} - Along pipe",
+              "type": "mainTable",
+              "cols": [
+                {
+                  "id": "pipeDimensionCol",
+                  "name": "d",
+                  "unitName": "[mm]",
+                  "type": "dropdownSelect",
+                  "value": "{{ pipeSystem.dimensions }}"
+                },
+                {
+                  "id": "pipeFlowCol",
+                  "name": "Flow",
+                  "unitName": "[m^3/h]",
+                  "type": "simpleInput",
+                  "recomendedRange": [1, 4],
+                  "infoMessage": "It is recommended to choose..."
+                },
+                {
+                  "id": "pipeLengthCol",
+                  "name": "Length",
+                  "unitName": "[m]",
+                  "type": "simpleInput"
+                }
+              ]
+            },
+            {
+              "id": "pressureLossResultsTable",
+              "name": "{{ pipeSystem.name }} - Results",
+              "type": "secondaryTable", // redundant
+              "cols": [
+                {
+                  "id": "pipeDimensionCol",
+                  "name": "d",
+                  "unitName": "[mm]",
+                  "type": "readonly",
+                  "value": "[[ pressureLossInputTable.pipeDimensionCol ]]" // redundant
+                },
+                {
+                  "id": "pipeVelocityCol",
+                  "name": "Velocity",
+                  "unitName": "[m/s]",
+                  "type": "readonly",
+                  "value": "[[ pressureLossInputTable.pipeDimensionCol - pressureLossInputTable.pipeFlowCol ]]"
+                },
+                {
+                  "id": "deltaPCol",
+                  "name": "ΔP",
+                  "unitName": "[Bar]",
+                  "type": "readonly",
+                  "value": "[[ pressureLossInputTable.pipeDimensionCol - pressureLossInputTable.pipeFlowCol ]] / somethingElse"
+                }
+              ]
+            },
+            {
+              "id": "pressureLossTotalResultsTable",
+              "name": "Total results",
+              "type": "totalResultsPerPypeSystemTable",
+              "endsWithTotalRow": true,
+              "cols": [
+                {
+                  "id": "pipeSystemCol",
+                  "name": "Pipe system",
+                  "unitName": "[-]",
+                  "type": "readonly",
+                  "value": "{{ pipeSystem.name }}"
+                },
+                {
+                  "id": "totalDeltaPCol",
+                  "name": "Total ΔP",
+                  "unitName": "[Bar]",
+                  "type": "readonly",
+                  "value": "SUM[[ pressureLossResultsTable.deltaPCol ]]"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "id": "pressureLossGrandTotalResultsTable",
+          "name": "Grand Total",
+          "type": "grandTotalResultsPerAreaModule",
+          "endsWithTotalRow": true,
+          "cols": [
+            {
+              "id": "grandTotalNameCol",
+              "name": "Total",
+              "unitName": "[-]",
+              "type": "readonly",
+              "value": "{{ modules.name }}"
+            },
+            {
+              "id": "grandTotalDeltaPCol",
+              "name": "Total ΔP",
+              "unitName": "[Bar]",
+              "type": "readonly",
+              "value": "SUM[[ pressureLossArea.modules.map(pressureLossTotalResultsTable.totalValue) ]]"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
