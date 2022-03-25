@@ -28,7 +28,7 @@
     "@types/react-native": "~0.60.23",
     "babel-preset-expo": "~8.0.0",
     "electron-builder": "^22.4.1",
-    "electron": "^6.0.12",
+    "electron": "^13.6.6",
     "typescript": "~3.6.3"
   },
   "build": {
